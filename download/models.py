@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 
@@ -22,8 +24,8 @@ class Bill(models.Model):
     client_org = models.CharField(max_length=150)
     number = models.IntegerField()
     sum = models.DecimalField(max_digits=12, decimal_places=2)
-    date = models.DateTimeField()
+    date = models.DateTimeField(null=True, blank=True)
     service = models.TextField()
-    # fraud_score = models.CharField(max_length=100)
-    # service_class = models.CharField(max_length=100)
-    # service_class = models.CharField(max_length=100)
+    fraud_score = models.CharField(max_length=100, null=True, blank=True)
+    service_class = models.CharField(max_length=100, null=True, blank=True)
+    service_name = models.CharField(max_length=100, null=True, blank=True)
