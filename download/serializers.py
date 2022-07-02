@@ -15,6 +15,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
     """
     Сериализатор для сериализации данных таблицы Organization
     """
+
     class Meta:
         model = Organization
         fields = '__all__'
