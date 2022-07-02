@@ -13,7 +13,8 @@ from .utils.utility import service_classifier, fraud_detector, \
 
 fields_client = ['name']
 fields_org = ['client_name', 'name', 'address']
-fields_bill = ['client_name', 'client_org', 'number', 'sum', 'service', 'fraud_score', 'service_class', 'service_name']
+fields_bill = ['client_name', 'client_org', 'number', 'sum', 'date', 'service', 'fraud_score', 'service_class', 'service_name']
+# fields_bill = ['client_name', 'client_org', 'number', 'sum', 'date', 'service']
 
 
 class ClientOrgUploadView(APIView):
@@ -23,9 +24,9 @@ class ClientOrgUploadView(APIView):
         if 'file' not in request.data:
             raise ParseError("Empty content")
 
-        f = request.data['file']
-        client = read_excel_file(f, sheet_name='client')
-        organization = read_excel_file(f, sheet_name='organization')
+        file = request.data['file']
+        client = read_excel_file(file, sheet_name='client')
+        organization = read_excel_file(file, sheet_name='organization')
         data_client = convert_lists_to_dict(fields_client, client)
         data_org = convert_lists_to_dict(fields_org, organization)
 
@@ -45,7 +46,34 @@ class ClientOrgUploadView(APIView):
         return Response(serializer_client.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BillOrgUploadView(APIView):
+class BillUploadView(APIView):
     parser_class = (FileUploadParser,)
 
-    pass
+    def post(self, request, format=None):
+        if 'file' not in request.data:
+            raise ParseError("Empty content")
+
+        file = request.data['file']
+        bills = read_excel_file(file)
+        bills_new = list()
+
+        for elem in bills:
+            print(elem)
+            fraud_score = fraud_detector(str(elem[-1]))
+            for service_class, service_name in service_classifier(str(elem[-1])).items():
+                elem.extend([str(fraud_score), str(service_class), str(service_name)])
+                bills_new.append(elem)
+                print(elem)
+
+
+        data = convert_lists_to_dict(fields_bill, bills_new)
+
+        # передаем все на вход сериализатору
+        serializer = BillSerializer(data=data, many=True)
+
+        # проверка валидации и сохранение в базу
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
