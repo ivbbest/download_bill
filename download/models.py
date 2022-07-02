@@ -4,11 +4,17 @@ from django.db import models
 class Client(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Organization(models.Model):
     client_name = models.ForeignKey('Client', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, unique=True)
     address = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 
 class Bill(models.Model):
