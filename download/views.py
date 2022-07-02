@@ -68,12 +68,10 @@ class BillUploadView(APIView):
         bills_new = list()
 
         for elem in bills:
-            print(elem)
             fraud_score = fraud_detector(str(elem[-1]))
             for service_class, service_name in service_classifier(str(elem[-1])).items():
                 elem.extend([str(fraud_score), str(service_class), str(service_name)])
                 bills_new.append(elem)
-                print(elem)
 
         data = convert_lists_to_dict(fields_bill, bills_new)
         # передаем все на вход сериализатору
