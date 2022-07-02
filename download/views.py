@@ -18,6 +18,9 @@ fields_bill = ['client_name', 'client_org', 'number', 'sum', 'date', 'service', 
 
 
 class ClientOrgUploadView(APIView):
+    """
+    Обработка загрузки данных с файла client_org.xlsx
+    """
     parser_class = (FileUploadParser,)
 
     def post(self, request, format=None):
@@ -47,6 +50,9 @@ class ClientOrgUploadView(APIView):
 
 
 class BillUploadView(APIView):
+    """
+    Обработка загрузки данных с файла bills.xlsx
+    """
     parser_class = (FileUploadParser,)
 
     def post(self, request, format=None):
@@ -65,9 +71,7 @@ class BillUploadView(APIView):
                 bills_new.append(elem)
                 print(elem)
 
-
         data = convert_lists_to_dict(fields_bill, bills_new)
-
         # передаем все на вход сериализатору
         serializer = BillSerializer(data=data, many=True)
 
