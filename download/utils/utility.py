@@ -35,3 +35,13 @@ def service_classifier(row: str):
     service_name = MEDSERVICE.get(service_class)
 
     return {service_class: service_name}
+
+
+def convert_lists_to_dict(list1, list2):
+    """
+    Из двух списков делаем словарь,
+    чтобы в дальнейшем загружать в БД
+    """
+    common_dict = [dict(zip(list1, lst)) for lst in list2]
+
+    return common_dict
