@@ -5,20 +5,20 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import generics
 from django.db.models import *
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 from .serializers import ClientSerializer, BillSerializer, \
                             OrganizationSerializer
 from .utils.read_file import read_excel_file
 from .utils.utility import service_classifier, fraud_detector, \
                             convert_lists_to_dict
-from .models import Client, Organization, Bill
+from .models import Bill
 
 
 fields_client = ['name']
 fields_org = ['client_name', 'name', 'address']
 fields_bill = ['client_name', 'client_org', 'number', 'sum', 'date', 'service', 'fraud_score', 'service_class', 'service_name']
-# fields_bill = ['client_name', 'client_org', 'number', 'sum', 'date', 'service']
 
 
 class ClientOrgUploadView(APIView):
@@ -99,3 +99,15 @@ class ClientAPIList(APIView):
         data = Bill.objects.values('client_name').\
             annotate(count_org=Count('client_org'), sum=Sum('sum'))
         return Response(data)
+
+
+class BillAPIList(generics.ListAPIView):
+    """
+    эндпоинт со списком счетов с возможностью фильтровать
+    по организации, клиенту.
+    """
+    queryset = Bill.objects.all()
+    serializer_class = BillSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['client_org', 'client_name']
+    search_fields = ['client_org', 'client_name']
