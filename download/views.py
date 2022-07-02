@@ -3,12 +3,16 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework import generics
+from django.db.models import *
+
 
 from .serializers import ClientSerializer, BillSerializer, \
                             OrganizationSerializer
 from .utils.read_file import read_excel_file
 from .utils.utility import service_classifier, fraud_detector, \
                             convert_lists_to_dict
+from .models import Client, Organization, Bill
 
 
 fields_client = ['name']
@@ -81,3 +85,17 @@ class BillUploadView(APIView):
 
             return Response({'status': 'OK'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClientAPIList(APIView):
+    """
+    Эндпоинт со списком клиентов. Данные, которые нужно
+    отдавать для каждого элемента списка:
+     - Название клиента
+     - Кол-во организаций
+     - Приход (сумма по счетам всех организаций клиента)
+    """
+    def get(self, request, format=None):
+        data = Bill.objects.values('client_name').\
+            annotate(count_org=Count('client_org'), sum=Sum('sum'))
+        return Response(data)
