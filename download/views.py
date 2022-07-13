@@ -27,7 +27,7 @@ class ClientOrgUploadView(APIView):
     """
     parser_class = (FileUploadParser,)
 
-    def post(self, request, format=None):
+    def put(self, request, format=None):
         if 'file' not in request.data:
             raise ParseError("Empty content")
 

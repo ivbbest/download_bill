@@ -10,4 +10,14 @@ def read_excel_file(file, sheet_name=None):
     else:
         data = pd.read_excel(file, sheet_name=sheet_name)
 
-    return data.values.tolist()
+    data_list = data.values.tolist()
+    result = list()
+
+    for line in data_list:
+        if line[-1].isspace() or line[-1] == '-':
+            result.append(line)
+        else:
+            line[-1] = 'Адрес: ' + line[-1]
+            result.append(line)
+
+    return result
